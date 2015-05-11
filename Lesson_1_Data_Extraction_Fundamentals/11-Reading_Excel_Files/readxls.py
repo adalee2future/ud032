@@ -45,14 +45,17 @@ def parse_file(datafile):
     # print exceltime
     # print "Convert time to a Python datetime tuple, from the Excel float:",
     # print xlrd.xldate_as_tuple(exceltime, 0)
-    
-    
+
+    coast = [sheet.cell_value(r, 1) for r in range(1, sheet.nrows)]
+    coast_vs_time = [(sheet.cell_value(r, 1), sheet.cell_value(r, 0)) for r in range(1, sheet.nrows)]
+    max_res = max(coast_vs_time)
+    min_res = min(coast_vs_time)
     data = {
-            'maxtime': (0, 0, 0, 0, 0, 0),
-            'maxvalue': 0,
-            'mintime': (0, 0, 0, 0, 0, 0),
-            'minvalue': 0,
-            'avgcoast': 0
+            'maxtime': xlrd.xldate_as_tuple(max_res[1], 0),
+            'maxvalue': max_res[0],
+            'mintime': xlrd.xldate_as_tuple(min_res[1], 0),
+            'minvalue': min_res[0],
+            'avgcoast': sum(coast) / (sheet.nrows - 1)
     }
     return data
 
@@ -60,7 +63,6 @@ def parse_file(datafile):
 def test():
     open_zip(datafile)
     data = parse_file(datafile)
-
     assert data['maxtime'] == (2013, 8, 13, 17, 0, 0)
     assert round(data['maxvalue'], 10) == round(18779.02551, 10)
 
